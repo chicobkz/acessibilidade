@@ -1,0 +1,583 @@
+```html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tecnologias e Inclusão — Apresentação Acessível</title>
+
+<style>
+  :root{
+    --bg:#ffffff;
+    --fg:#000000;
+    --muted:#2b2b2b;
+    --card:#f4f4f4;
+    --border:#000000;
+    --focus:#000000;
+    --btnbg:#ffffff;
+    --btnfg:#000000;
+
+    /* espaçamentos responsivos */
+    --pad: clamp(14px, 3vw, 28px);
+    --radius: 18px;
+  }
+
+  /* Modo escuro automático */
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0f0f10;
+      --fg:#f2f2f2;
+      --muted:#cfcfcf;
+      --card:#1a1a1c;
+      --border:#f2f2f2;
+      --focus:#f2f2f2;
+      --btnbg:#0f0f10;
+      --btnfg:#f2f2f2;
+    }
+  }
+
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family: Arial, Helvetica, sans-serif;
+    background:var(--bg);
+    color:var(--fg);
+    line-height:1.5;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Skip link */
+  .skip{
+    position:absolute; left:-9999px; top:auto;
+    width:1px; height:1px; overflow:hidden;
+  }
+  .skip:focus{
+    left:16px; top:12px; width:auto; height:auto;
+    padding:10px 12px;
+    background:var(--bg);
+    color:var(--fg);
+    border:2px solid var(--border);
+    z-index:9999;
+  }
+
+  header{
+    position:fixed;
+    top:0; left:0; right:0;
+    background:color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: blur(6px);
+    border-bottom:2px solid var(--border);
+    padding:10px 12px;
+    display:flex;
+    gap:10px;
+    align-items:center;
+    justify-content:space-between;
+    z-index:1000;
+    flex-wrap:wrap; /* responsivo */
+  }
+
+  .left, .right{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+
+  .badge{
+    font-size:14px;
+    color:var(--muted);
+  }
+
+  /* Botões melhores pra toque */
+  button{
+    appearance:none;
+    border:2px solid var(--border);
+    background:var(--btnbg);
+    color:var(--btnfg);
+    border-radius:12px;
+    padding:12px 14px;
+    font-size:16px;
+    cursor:pointer;
+    min-height:44px; /* alvo de toque */
+  }
+  button[disabled]{opacity:.55; cursor:not-allowed;}
+  button:focus{
+    outline:3px solid var(--focus);
+    outline-offset:2px;
+  }
+
+  main{
+    height:100%;
+    display:grid;
+    place-items:center;
+    padding: calc(76px + env(safe-area-inset-top)) 12px calc(18px + env(safe-area-inset-bottom));
+    box-sizing:border-box;
+  }
+
+  .stage{
+    width:min(1100px, 96vw);
+    min-height:calc(100vh - 110px);
+    border:2px solid var(--border);
+    border-radius:var(--radius);
+    background:var(--card);
+    box-sizing:border-box;
+    padding:var(--pad);
+    position:relative;
+  }
+
+  .slide{
+    display:none;
+    height:100%;
+  }
+  .slide[aria-hidden="false"]{display:block;}
+
+  /* Tipografia responsiva */
+  h1{
+    font-size: clamp(26px, 4vw, 40px);
+    margin:0 0 12px;
+  }
+  h2{
+    font-size: clamp(22px, 3.4vw, 34px);
+    margin:0 0 12px;
+  }
+  p, li{
+    font-size: clamp(16px, 2.2vw, 22px);
+  }
+  ul{margin:0; padding-left:22px;}
+
+  blockquote{
+    margin:16px 0 0;
+    padding:12px 14px;
+    border-left:6px solid var(--border);
+    background:color-mix(in srgb, var(--bg) 65%, transparent);
+    font-size: clamp(15px, 2vw, 20px);
+  }
+
+  /* Grid da imagem */
+  .grid2{
+    display:grid;
+    grid-template-columns: 1.2fr .8fr;
+    gap:18px;
+    align-items:start;
+  }
+  @media (max-width: 880px){
+    .grid2{grid-template-columns:1fr;}
+  }
+
+  figure{
+    margin:0;
+    border:2px solid var(--border);
+    border-radius:14px;
+    background:var(--bg);
+    padding:12px;
+  }
+  figcaption{
+    margin-top:10px;
+    font-size: clamp(13px, 1.9vw, 16px);
+    color:var(--muted);
+  }
+
+  .sr-only{
+    position:absolute;
+    width:1px;height:1px;
+    padding:0;margin:-1px;
+    overflow:hidden;clip:rect(0,0,0,0);
+    border:0;
+  }
+
+  .hint{
+    font-size: clamp(13px, 1.9vw, 16px);
+    color:var(--muted);
+    margin-top:14px;
+  }
+
+  .footer{
+    margin-top:18px;
+    font-size: clamp(13px, 1.9vw, 16px);
+    color:var(--muted);
+  }
+
+  kbd{
+    border:2px solid var(--border);
+    border-radius:8px;
+    padding:2px 8px;
+    font-size: 0.9em;
+    background:var(--bg);
+  }
+
+  /* Ajustes para telas pequenas */
+  @media (max-width: 520px){
+    /* header vira barra inferior */
+    header{
+      top:auto;
+      bottom:0;
+      border-bottom:none;
+      border-top:2px solid var(--border);
+      padding:10px 10px calc(10px + env(safe-area-inset-bottom));
+    }
+
+    /* espaço extra por causa do header embaixo */
+    main{
+      padding: calc(16px + env(safe-area-inset-top)) 10px calc(90px + env(safe-area-inset-bottom));
+    }
+
+    .stage{
+      width: 100%;
+      min-height: calc(100vh - 120px);
+      border-radius: 16px;
+    }
+
+    .right{
+      width:100%;
+      justify-content:space-between;
+    }
+    button{
+      flex:1;
+      min-width: 0;
+      padding:12px 10px;
+      font-size:15px;
+    }
+    .badge{font-size:13px;}
+  }
+</style>
+</head>
+
+<body>
+<a class="skip" href="#conteudo">Pular para o conteúdo</a>
+
+<header aria-label="Barra de controles da apresentação">
+  <div class="left">
+    <strong aria-label="Título curto">Tecnologias e Inclusão</strong>
+    <span class="badge" id="counter" aria-live="polite">Slide 1 de 10</span>
+  </div>
+
+  <div class="right">
+    <button id="prevBtn" type="button" aria-label="Slide anterior (seta para a esquerda)">◀ Anterior</button>
+    <button id="nextBtn" type="button" aria-label="Próximo slide (seta para a direita)">Próximo ▶</button>
+    <button id="speakBtn" type="button" aria-label="Ler o slide em voz alta">🔊 Ler slide</button>
+    <button id="stopBtn" type="button" aria-label="Parar leitura" disabled>⏹ Parar</button>
+  </div>
+</header>
+
+<main id="conteudo">
+  <div class="stage" role="region" aria-label="Área do slide">
+    <!-- SLIDE 1 -->
+    <section class="slide" id="s1" aria-hidden="false" tabindex="-1" aria-labelledby="s1t">
+      <h1 id="s1t">Tecnologias e Inclusão nos Processos de Ensino e Aprendizagem</h1>
+      <p>Pós-graduação em Tecnologias na Aprendizagem</p>
+      <p><strong>Francisco Barros</strong> — 2026</p>
+
+      <p class="hint">
+        Dicas de navegação:
+        use as teclas <kbd>←</kbd> e <kbd>→</kbd> para navegar (ou <kbd>PageUp</kbd>/<kbd>PageDown</kbd>).
+        Pressione <kbd>L</kbd> para iniciar a leitura por voz do slide atual.
+        Pressione <kbd>Esc</kbd> para parar a leitura.
+      </p>
+    </section>
+
+    <!-- SLIDE 2 (Introdução com o texto solicitado) -->
+    <section class="slide" id="s2" aria-hidden="true" tabindex="-1" aria-labelledby="s2t">
+      <h2 id="s2t">Introdução</h2>
+
+      <p>
+        A inclusão educacional das pessoas com deficiência é um direito assegurado por marcos legais nacionais e internacionais,
+        como a Constituição Federal de 1988, a Lei Brasileira de Inclusão (Lei nº 13.146/2015) e a Convenção sobre os Direitos
+        das Pessoas com Deficiência.
+      </p>
+
+      <p>
+        No contexto educacional contemporâneo, as tecnologias digitais e assistivas desempenham papel central na garantia do
+        acesso, da permanência e da aprendizagem significativa desses estudantes.
+      </p>
+
+      <p>
+        Assim, compreender como as tecnologias podem favorecer a inclusão é essencial para a atuação docente comprometida com
+        o Desenho Universal para a Aprendizagem (DUA).
+      </p>
+
+      <blockquote>
+        “A educação inclusiva pressupõe a eliminação de barreiras à participação e à aprendizagem.” (Mantoan, 2003)
+      </blockquote>
+    </section>
+
+    <!-- SLIDE 3 -->
+    <section class="slide" id="s3" aria-hidden="true" tabindex="-1" aria-labelledby="s3t">
+      <h2 id="s3t">O que são Tecnologias Assistivas?</h2>
+      <blockquote>
+        “Produtos, recursos, metodologias e serviços que promovem funcionalidade e participação de pessoas com deficiência.”
+        (Brasil, 2009)
+      </blockquote>
+      <ul>
+        <li>Leitores de tela</li>
+        <li>Reconhecimento de voz</li>
+        <li>Legendas e Libras</li>
+        <li>Comunicação alternativa</li>
+      </ul>
+    </section>
+
+    <!-- SLIDE 4 -->
+    <section class="slide" id="s4" aria-hidden="true" tabindex="-1" aria-labelledby="s4t">
+      <h2 id="s4t">Como auxiliam na aprendizagem?</h2>
+      <ul>
+        <li>Promovem autonomia</li>
+        <li>Garantem acesso ao conteúdo</li>
+        <li>Favorecem participação ativa</li>
+        <li>Reduzem barreiras comunicacionais</li>
+      </ul>
+      <blockquote>“As tecnologias digitais ampliam possibilidades cognitivas e comunicacionais.” (Kenski, 2012)</blockquote>
+    </section>
+
+    <!-- SLIDE 5 -->
+    <section class="slide" id="s5" aria-hidden="true" tabindex="-1" aria-labelledby="s5t">
+      <h2 id="s5t">Desenho Universal para a Aprendizagem (DUA)</h2>
+      <ul>
+        <li>Múltiplas formas de representação</li>
+        <li>Múltiplas formas de ação e expressão</li>
+        <li>Múltiplas formas de engajamento</li>
+      </ul>
+      <blockquote>“O currículo deve ser flexível para atender à diversidade dos estudantes.” (CAST, 2018)</blockquote>
+    </section>
+
+    <!-- SLIDE 6 (com imagem real + alt descritivo) -->
+    <section class="slide" id="s6" aria-hidden="true" tabindex="-1" aria-labelledby="s6t">
+      <h2 id="s6t">Acessibilidade Digital</h2>
+
+      <div class="grid2">
+        <div>
+          <p>Boas práticas incluem:</p>
+          <ul>
+            <li>Hierarquia correta de títulos</li>
+            <li>Texto alternativo em imagens</li>
+            <li>Alto contraste</li>
+            <li>Legendas e transcrições em vídeos</li>
+            <li>Navegação por teclado</li>
+          </ul>
+          <blockquote>
+            “A acessibilidade digital é condição para a participação social na sociedade da informação.”
+            (Sassaki, 2010)
+          </blockquote>
+        </div>
+
+        <figure aria-label="Figura com exemplo de acessibilidade">
+          <!-- Imagem embutida (SVG) para não depender de internet -->
+          <img
+            src='data:image/svg+xml;utf8,
+            <svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="0 0 640 420">
+              <rect x="0" y="0" width="640" height="420" fill="white"/>
+              <rect x="40" y="50" width="560" height="320" rx="20" ry="20" fill="#f4f4f4" stroke="black" stroke-width="4"/>
+              <text x="70" y="105" font-family="Arial" font-size="30" fill="black">Material acessível</text>
+              <text x="70" y="150" font-family="Arial" font-size="20" fill="black">• Títulos bem definidos</text>
+              <text x="70" y="185" font-family="Arial" font-size="20" fill="black">• Contraste alto</text>
+              <text x="70" y="220" font-family="Arial" font-size="20" fill="black">• Texto alternativo</text>
+              <text x="70" y="255" font-family="Arial" font-size="20" fill="black">• Leitura por voz</text>
+              <circle cx="515" cy="238" r="70" fill="white" stroke="black" stroke-width="4"/>
+              <path d="M485 238 L535 205 L535 271 Z" fill="black"/>
+              <path d="M548 218 Q580 238 548 258" fill="none" stroke="black" stroke-width="6" stroke-linecap="round"/>
+            </svg>'
+            alt="Ilustração em preto e branco de um cartão com o título “Material acessível” e uma lista de quatro itens: títulos bem definidos, contraste alto, texto alternativo e leitura por voz. À direita há um ícone de reprodução de áudio, sugerindo acessibilidade por leitura em voz alta."
+            style="width:100%; height:auto; display:block;"
+          />
+          <figcaption>
+            Exemplo de imagem com <strong>texto alternativo</strong> descritivo (alt). Em slides e páginas, o alt deve explicar o que a imagem comunica.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- SLIDE 7 -->
+    <section class="slide" id="s7" aria-hidden="true" tabindex="-1" aria-labelledby="s7t">
+      <h2 id="s7t">Impactos na prática docente</h2>
+      <ul>
+        <li>Planejamento com base no DUA</li>
+        <li>Uso intencional de tecnologias</li>
+        <li>Flexibilização curricular e avaliação</li>
+      </ul>
+      <blockquote>“Incluir não é adaptar depois, mas planejar para todos desde o início.” (Mantoan, 2003)</blockquote>
+    </section>
+
+    <!-- SLIDE 8 -->
+    <section class="slide" id="s8" aria-hidden="true" tabindex="-1" aria-labelledby="s8t">
+      <h2 id="s8t">Considerações finais</h2>
+      <ul>
+        <li>As tecnologias potencializam a mediação pedagógica (não substituem o professor).</li>
+        <li>Promovem equidade: acesso, participação e aprendizagem.</li>
+        <li>Contribuem para justiça social e autonomia.</li>
+      </ul>
+    </section>
+
+    <!-- SLIDE 9 (nota sobre IA) -->
+    <section class="slide" id="s9" aria-hidden="true" tabindex="-1" aria-labelledby="s9t">
+      <h2 id="s9t">Nota sobre o uso de Inteligência Artificial</h2>
+      <p>
+        Este material foi produzido com o auxílio de uma ferramenta de Inteligência Artificial (IA).
+        O propósito do uso da IA foi <strong>apoiar o profissional da educação</strong> na confecção da
+        <strong>estrutura digital acessível</strong> (organização dos slides, recursos de navegação por teclado,
+        modo escuro automático e leitura por voz).
+      </p>
+      <p>
+        O <strong>conteúdo pedagógico e acadêmico</strong> (ideias centrais, seleção de tópicos e coerência argumentativa)
+        é de autoria do responsável por este trabalho.
+      </p>
+    </section>
+
+    <!-- SLIDE 10 -->
+    <section class="slide" id="s10" aria-hidden="true" tabindex="-1" aria-labelledby="s10t">
+      <h2 id="s10t">Recursos de acessibilidade e referências</h2>
+
+      <p><strong>Recursos de acessibilidade usados nesta apresentação:</strong></p>
+      <ul>
+        <li>Estrutura semântica (títulos e seções) para leitores de tela</li>
+        <li>Navegação por teclado (← →) e botões “Anterior/Próximo”</li>
+        <li>Modo escuro automático (prefers-color-scheme)</li>
+        <li>Leitura por voz (Web Speech API) + atalho <strong>L</strong></li>
+        <li>Parar leitura com <strong>Esc</strong> + botão “Parar”</li>
+        <li>Exemplo de imagem com texto alternativo (alt) descritivo</li>
+        <li>Layout responsivo para celular/tablet/desktop</li>
+      </ul>
+
+      <p class="footer"><strong>Referências</strong></p>
+      <ul class="footer">
+        <li>BRASIL. Comitê de Ajudas Técnicas. <em>Tecnologia Assistiva</em>. 2009.</li>
+        <li>CAST. <em>Universal Design for Learning Guidelines</em> (v2.2). 2018.</li>
+        <li>KENSKI, V. M. <em>Educação e Tecnologias: o novo ritmo da informação</em>. Papirus, 2012.</li>
+        <li>MANTOAN, M. T. E. <em>Inclusão escolar: o que é? por quê? como fazer?</em>. Moderna, 2003.</li>
+        <li>SASSAKI, R. K. <em>Inclusão: construindo uma sociedade para todos</em>. WVA, 2010.</li>
+      </ul>
+    </section>
+
+    <!-- Região para avisos (leitura iniciada/finalizada) -->
+    <div class="sr-only" aria-live="polite" id="liveRegion"></div>
+  </div>
+</main>
+
+<script>
+(function(){
+  const slides = Array.from(document.querySelectorAll(".slide"));
+  const counter = document.getElementById("counter");
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const speakBtn = document.getElementById("speakBtn");
+  const stopBtn = document.getElementById("stopBtn");
+  const liveRegion = document.getElementById("liveRegion");
+
+  let idx = 0;
+
+  function update(){
+    slides.forEach((s, i) => {
+      const active = i === idx;
+      s.setAttribute("aria-hidden", active ? "false" : "true");
+    });
+
+    counter.textContent = `Slide ${idx + 1} de ${slides.length}`;
+    prevBtn.disabled = idx === 0;
+    nextBtn.disabled = idx === slides.length - 1;
+
+    // Move foco para o slide atual (bom para teclado e leitores de tela)
+    slides[idx].focus({ preventScroll: true });
+
+    // Atualiza URL hash (opcional)
+    history.replaceState(null, "", "#" + slides[idx].id);
+  }
+
+  function next(){ if(idx < slides.length - 1){ stopSpeech(); idx++; update(); } }
+  function prev(){ if(idx > 0){ stopSpeech(); idx--; update(); } }
+
+  // Leitura por voz (Web Speech API)
+  function getSlideText(slideEl){
+    const nodes = slideEl.querySelectorAll("h1,h2,p,li,blockquote,figcaption");
+    return Array.from(nodes)
+      .map(n => (n.innerText || "").trim())
+      .filter(Boolean)
+      .join(". ");
+  }
+
+  function speak(){
+    if(!("speechSynthesis" in window)){
+      liveRegion.textContent = "Leitura por voz não suportada neste navegador.";
+      alert("Seu navegador não suporta leitura por voz (Web Speech API).");
+      return;
+    }
+    stopSpeech();
+
+    const text = getSlideText(slides[idx]);
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "pt-BR";
+    utter.rate = 1;
+    utter.pitch = 1;
+
+    utter.onstart = () => {
+      liveRegion.textContent = "Leitura iniciada.";
+      stopBtn.disabled = false;
+    };
+    utter.onend = () => {
+      liveRegion.textContent = "Leitura finalizada.";
+      stopBtn.disabled = true;
+    };
+    utter.onerror = () => {
+      liveRegion.textContent = "Erro na leitura por voz.";
+      stopBtn.disabled = true;
+    };
+
+    // Tenta escolher uma voz em português
+    const voices = window.speechSynthesis.getVoices?.() || [];
+    const pt = voices.find(v => (v.lang || "").toLowerCase().startsWith("pt"));
+    if(pt) utter.voice = pt;
+
+    window.speechSynthesis.speak(utter);
+  }
+
+  function stopSpeech(){
+    if("speechSynthesis" in window){
+      window.speechSynthesis.cancel();
+    }
+    stopBtn.disabled = true;
+  }
+
+  // Botões
+  prevBtn.addEventListener("click", prev);
+  nextBtn.addEventListener("click", next);
+  speakBtn.addEventListener("click", speak);
+  stopBtn.addEventListener("click", stopSpeech);
+
+  // Teclado:
+  // ←/→ navegar
+  // L iniciar leitura
+  // Esc parar leitura
+  document.addEventListener("keydown", (e) => {
+    const key = e.key;
+
+    const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : "";
+    const isTyping = (tag === "input" || tag === "textarea" || e.target?.isContentEditable);
+    if(isTyping) return;
+
+    if(key === "ArrowRight" || key === "PageDown" || key === " "){
+      e.preventDefault(); next();
+    } else if(key === "ArrowLeft" || key === "PageUp"){
+      e.preventDefault(); prev();
+    } else if(key === "Home"){
+      e.preventDefault(); stopSpeech(); idx = 0; update();
+    } else if(key === "End"){
+      e.preventDefault(); stopSpeech(); idx = slides.length - 1; update();
+    } else if(key.toLowerCase() === "l"){
+      e.preventDefault(); speak();
+    } else if(key === "Escape"){
+      e.preventDefault(); stopSpeech();
+    }
+  });
+
+  // Inicia no slide indicado no hash, se existir
+  const hash = (location.hash || "").replace("#", "");
+  const startIdx = slides.findIndex(s => s.id === hash);
+  if(startIdx >= 0) idx = startIdx;
+
+  // Vozez podem carregar depois
+  if("speechSynthesis" in window){
+    window.speechSynthesis.onvoiceschanged = () => {};
+  }
+
+  update();
+})();
+</script>
+
+</body>
+</html>
+```
